@@ -145,6 +145,11 @@ let s:default_registry = {
 \       'suggested_filetypes': ['c', 'cpp', 'cuda'],
 \       'description': 'Fix C/C++ and cuda files with clang-format.',
 \   },
+\   'iwyu': {
+\       'function': 'ale#fixers#iwyu#Fix',
+\       'suggested_filetypes': ['c', 'cpp'],
+\       'description': 'Fix C/C++ includes with iwyu fix_includes.py.',
+\   },
 \   'cmakeformat': {
 \       'function': 'ale#fixers#cmakeformat#Fix',
 \       'suggested_filetypes': ['cmake'],
