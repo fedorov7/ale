@@ -39,7 +39,7 @@ function! ale#fixers#iwyu#Fix(buffer) abort
     \}
 endfunction
 
-function! ale#fixers#iwyu#ApplyFix(buffer, output, input) abort
+function! ale#fixers#iwyu#ApplyFix(buffer, output) abort
     let l:options = ale#Var(a:buffer, 'fix_includes_options')
     let l:executable = ale#fixers#iwyu#GetFixIncludes(a:buffer)
     let l:build_dir = ale#c#GetBuildDirectory(a:buffer)
@@ -47,11 +47,26 @@ function! ale#fixers#iwyu#ApplyFix(buffer, output, input) abort
     let l:temp_file = ale#command#CreateFile(a:buffer)
     call ale#util#Writefile(a:buffer, a:output, l:temp_file)
 
-    return {
-    \   'command' :  ale#Escape(l:executable)
-    \   . (empty(l:build_dir) ? '' : ' -p ' . ale#Escape(l:build_dir))
+    let l:command =
+    \   l:executable
+    \   . (empty(l:build_dir) ? '' : ' -p ' . l:build_dir)
     \   . (empty(l:options) ? '' : ' ' . l:options)
-    \   . '%t - --stdin --stdin-filename ' . l:temp_file,
-    \   'read_temporary_file': 1,
+    \   . '%s - < ' . l:temp_file
+
+    " execute 'echom l:command'
+
+    return {
+    \   'command' : l:command,
+    \   'lint_file': 1,
+    \   'output_stream' : 'stderr',
+    \   'process_with' : 'ale#fixers#iwyu#ReadFile',
     \}
+endfunction
+
+function! ale#fixers#iwyu#ReadFile(buffer, output) abort
+  let l:linted_file = bufname(a:buffer)
+  let l:output = !empty(l:linted_file)
+        \   ?  readfile(l:linted_file)
+        \   : []
+  return l:output
 endfunction

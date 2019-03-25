@@ -11,7 +11,7 @@ function! ale_linters#cpp#iwyu#GetCommand(buffer) abort
     let l:build_dir = ale#c#GetBuildDirectory(a:buffer)
 
     return '%e'
-    \   . (!empty(l:build_dir) ? ' -p ' . ale#Escape(l:build_dir) : ' - p build ')
+    \   . (!empty(l:build_dir) ? ' -p ' . ale#Escape(l:build_dir) : ' -p . ')
     \   . ale#Var(a:buffer, 'cpp_iwyu_options')
     \   . ' %s'
 
@@ -20,8 +20,7 @@ endfunction
 call ale#linter#Define('cpp', {
 \   'name': 'iwyu',
 \   'output_stream': 'both',
-\   'executable_callback': ale#VarFunc('cpp_iwyu_executable'),
-\   'command_callback': 'ale_linters#cpp#iwyu#GetCommand',
+\   'executable': {b ->ale#Var(b, 'cpp_iwyu_executable')},
+\   'command': function('ale_linters#cpp#iwyu#GetCommand'),
 \   'callback': 'ale#handlers#iwyu#HandleIwyuFormat',
-\   'lint_file': 1,
 \})
